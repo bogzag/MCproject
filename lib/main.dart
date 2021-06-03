@@ -3,7 +3,6 @@ import 'package:mc_project/calculate_block_percent.dart';
 import 'package:mc_project/calculate_intensity.dart';
 
 import 'calculare_channels_number.dart';
-import 'functions.dart';
 import 'info_modal.dart';
 
 void main() {

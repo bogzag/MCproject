@@ -50,18 +50,18 @@ class _CalculateChannelsNumberState extends State<CalculateChannelsNumber>
                 controller: probabilityController,
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.allow(RegExp(r'(^\-?\d*\.?\d*)')),
+                  FilteringTextInputFormatter.deny(new RegExp('[\\-|\\,]')),
                 ],
                 onChanged: (value) {
                   if (value.isNotEmpty &&
-                      intensityController2.text.isNotEmpty) {
-                    // channels = erl(int.parse(value),
-                    //     double.parse(intensityController.text))
-                    //     .toString();
-                    // calculateChannelsNumber(2,0.05);
-
-                    channels = calculateChannelsNumber2(
+                      intensityController2.text.isNotEmpty &&
+                      double.parse(value) <= 2 &&
+                      double.parse(value) > 0.01 &&
+                      double.parse(intensityController2.text) > 0.001 &&
+                      double.parse(intensityController2.text) <= 100) {
+                    channels = calculateChannelsNumber(
                             double.parse(intensityController2.text),
-                        (double.parse(value.toString())/100))
+                            (double.parse(value.toString()) / 100))
                         .toString();
                   }
                   setState(() {});
@@ -103,13 +103,18 @@ class _CalculateChannelsNumberState extends State<CalculateChannelsNumber>
                 controller: intensityController2,
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.allow(RegExp(r'(^\-?\d*\.?\d*)')),
+                  FilteringTextInputFormatter.deny(new RegExp('[\\-|\\,]')),
                 ],
                 onChanged: (value) {
                   if (value.isNotEmpty &&
-                      probabilityController.text.isNotEmpty) {
-                    channels = calculateChannelsNumber2(
+                      probabilityController.text.isNotEmpty &&
+                      double.parse(probabilityController.text) <= 2 &&
+                      double.parse(probabilityController.text) >= 0.01 &&
+                      double.parse(value) >= 0.001 &&
+                      double.parse(value) <= 100) {
+                    channels = calculateChannelsNumber(
                       double.parse(value.toString()),
-                        (double.parse(probabilityController.text)/100),
+                      (double.parse(probabilityController.text) / 100),
                     ).toString();
                   }
 

@@ -8,7 +8,8 @@ class CalculateBlockPercent extends StatefulWidget {
   _CalculateBlockPercentState createState() => _CalculateBlockPercentState();
 }
 
-class _CalculateBlockPercentState extends State<CalculateBlockPercent> with SingleTickerProviderStateMixin {
+class _CalculateBlockPercentState extends State<CalculateBlockPercent>
+    with SingleTickerProviderStateMixin {
   AnimationController _controller;
   final _formChannels = GlobalKey<FormState>();
   final _formIntensity = GlobalKey<FormState>();
@@ -62,13 +63,14 @@ class _CalculateBlockPercentState extends State<CalculateBlockPercent> with Sing
                   }
 
                   if (value.isNotEmpty &&
-                      intensityController.text.isNotEmpty) {
+                      intensityController.text.isNotEmpty &&
+                      double.parse(value) <= 256 &&
+                      double.parse(value) >= 1 &&
+                      double.parse(intensityController.text) >= 0.001 &&
+                      double.parse(intensityController.text) <= 100) {
                     blocking = erl(int.parse(value),
-                        double.parse(intensityController.text))
+                            double.parse(intensityController.text))
                         .toString();
-                    // calculateChannelsNumber(2,0.05);
-
-                    calculateChannelsNumber2(0.01, 0.01);
                   }
 
                   setState(() {});
@@ -84,19 +86,13 @@ class _CalculateBlockPercentState extends State<CalculateBlockPercent> with Sing
                     return "Channels no. must be between 1 and 256";
                   }
 
-                  // if (value.isNotEmpty && int.parse(value) < 1 || int.parse(value) > 256) {
-                  //   validator = false;
-                  //   return "alo cf";
-                  // }
-
                   return null;
                 },
                 keyboardType: TextInputType.number,
                 obscureText: false,
                 autovalidateMode: AutovalidateMode.always,
                 decoration: InputDecoration(
-                    contentPadding:
-                    EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                    contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                     hintText: "Enter the channels number",
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0))),
@@ -114,8 +110,8 @@ class _CalculateBlockPercentState extends State<CalculateBlockPercent> with Sing
               child: TextFormField(
                 controller: intensityController,
                 inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(
-                      RegExp(r'(^\-?\d*\.?\d*)')),
+                  FilteringTextInputFormatter.deny(new RegExp('[\\-|\\,]')),
+                  FilteringTextInputFormatter.allow(RegExp(r'(^\-?\d*\.?\d*)')),
                 ],
                 onChanged: (value) {
                   if (value.isEmpty) {
@@ -124,16 +120,18 @@ class _CalculateBlockPercentState extends State<CalculateBlockPercent> with Sing
                   if (intensityController.text.isEmpty) {
                     validator = false;
                   }
-                  if (intensityController.text.isNotEmpty &&
-                      value.isNotEmpty) {
+                  if (intensityController.text.isNotEmpty && value.isNotEmpty) {
                     validator = true;
                   }
                   if (value.isNotEmpty &&
-                      channelsNumberController.text.isNotEmpty) {
+                      channelsNumberController.text.isNotEmpty &&
+                      double.parse(channelsNumberController.text) <= 256 &&
+                      double.parse(channelsNumberController.text) >= 1 &&
+                      double.parse(value) >= 0.001 &&
+                      double.parse(value) <= 100) {
                     blocking = erl(int.parse(channelsNumberController.text),
-                        double.parse(value))
-                        .toString()
-                       ;
+                            double.parse(value))
+                        .toString();
                   }
 
                   setState(() {});
@@ -159,8 +157,7 @@ class _CalculateBlockPercentState extends State<CalculateBlockPercent> with Sing
                 obscureText: false,
                 autovalidateMode: AutovalidateMode.always,
                 decoration: InputDecoration(
-                    contentPadding:
-                    EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                    contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                     hintText: "Enter the trafic intensity",
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0))),
@@ -173,8 +170,7 @@ class _CalculateBlockPercentState extends State<CalculateBlockPercent> with Sing
               children: [
                 Text(
                   "Blocking: " + blocking + "%",
-                  style:
-                  TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ],
             )

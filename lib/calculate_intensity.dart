@@ -5,8 +5,7 @@ import 'functions.dart';
 
 class CalculateIntensity extends StatefulWidget {
   @override
-  _CalculateIntensityState createState() =>
-      _CalculateIntensityState();
+  _CalculateIntensityState createState() => _CalculateIntensityState();
 }
 
 class _CalculateIntensityState extends State<CalculateIntensity>
@@ -17,6 +16,7 @@ class _CalculateIntensityState extends State<CalculateIntensity>
   final probabilityController = TextEditingController();
   final channelsController = TextEditingController();
   bool validator = false;
+  String calculatorError = "";
   var intensity = " ";
 
   @override
@@ -50,21 +50,26 @@ class _CalculateIntensityState extends State<CalculateIntensity>
                 controller: probabilityController,
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.allow(RegExp(r'(^\-?\d*\.?\d*)')),
+                  FilteringTextInputFormatter.deny(new RegExp('[\\-|\\,]')),
                 ],
-                onChanged: (value) {
+                onFieldSubmitted: (value) {
+                  calculatorError = "";
                   if (value.isNotEmpty &&
-                      channelsController.text.isNotEmpty) {
-                    // channels = erl(int.parse(value),
-                    //     double.parse(intensityController.text))
-                    //     .toString();
-                    // calculateChannelsNumber(2,0.05);
-
-                    // intensity = calculateChannelsNumber2(
-                    //     double.parse(channelsController.text),
-                    //     (double.parse(value.toString())/100))
-                    //     .toString();
-
-                    intensity = calculateIntensity(int.parse(channelsController.text), (double.parse(value.toString())/100)).toString();
+                      channelsController.text.isNotEmpty &&
+                      double.parse(value) <= 2 &&
+                      double.parse(value) >= 0.01 &&
+                      double.parse(channelsController.text) >= 1 &&
+                      double.parse(channelsController.text) <= 256) {
+                    try {
+                      intensity = calculateIntensity(
+                              int.parse(channelsController.text),
+                              (double.parse(value.toString()) / 100))
+                          .toString();
+                    } catch (err) {
+                      intensity = "";
+                      calculatorError =
+                          "Sorry, over the calculator computation power";
+                    }
                   }
                   setState(() {});
                 },
@@ -105,17 +110,28 @@ class _CalculateIntensityState extends State<CalculateIntensity>
                 controller: channelsController,
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  FilteringTextInputFormatter.deny(new RegExp('[\\-|\\,]')),
                 ],
-                onChanged: (value) {
+                onFieldSubmitted: (value) {
+                  calculatorError = "";
                   if (value.isNotEmpty &&
-                      probabilityController.text.isNotEmpty) {
-                    // intensity = calculateChannelsNumber2(
-                    //   double.parse(value.toString()),
-                    //   (double.parse(probabilityController.text)/100),
-                    // ).toString();
-
-
-                    intensity = calculateIntensity((int.parse(value)),(double.parse(probabilityController.text.toString())/100)).toString();
+                      probabilityController.text.isNotEmpty &&
+                      double.parse(probabilityController.text) <= 2 &&
+                      double.parse(probabilityController.text) >= 0.01 &&
+                      double.parse(value) >= 1 &&
+                      double.parse(value) <= 256) {
+                    try {
+                      intensity = calculateIntensity(
+                              (int.parse(value)),
+                              (double.parse(
+                                      probabilityController.text.toString()) /
+                                  100))
+                          .toString();
+                    } catch (err) {
+                      intensity = "";
+                      calculatorError =
+                          "Sorry, over the calculator computation power";
+                    }
                   }
 
                   setState(() {});
@@ -146,9 +162,18 @@ class _CalculateIntensityState extends State<CalculateIntensity>
             ),
             Row(
               children: [
-                Text(
-                  "Trafic Intensity: " + intensity,
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                Container(
+                  child: Column(
+                    children: [
+                      if (calculatorError == "")
+                        Text(
+                          "Trafic Intensity: " + intensity,
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
+                      Text(calculatorError),
+                    ],
+                  ),
                 ),
               ],
             )
